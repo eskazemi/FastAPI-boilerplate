@@ -1,0 +1,63 @@
+[project]
+name = "mlautomate"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.18.5",
+    "argon2-cffi>=25.1.0",
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.141.1",
+    "passlib>=1.7.4",
+    "pre-commit>=4.6.1",
+    "pytest-asyncio>=1.4.0",
+    "python-jose>=3.5.0",
+    "redis>=8.1.0",
+    "sqlalchemy==2.0.51",
+    "ujson>=5.13.0",
+    "vulture>=2.16",
+]
+environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'"
+]
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = [
+    ".mypy_cache",
+    ".pytest_cache",
+    ".venv",
+    "build",
+    "dist",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "PT",
+    "RUF",
+    "S",
+]
+
+ignore = [
+    "E501",
+]
+
+fixable = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["S101"]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
