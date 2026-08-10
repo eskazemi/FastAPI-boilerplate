@@ -15,10 +15,6 @@ from shared.config import (
     config,
     EnvironmentType,
 )
-from shared.middlewares.authentication import (
-    AuthenticationMiddleware,
-    JWTAuthenticationBackend,
-)
 from shared.middlewares.response_logger import (
     ResponseLoggerMiddleware,
 )
@@ -48,11 +44,6 @@ def make_middleware() -> Sequence[Middleware]:
             allow_headers=config.CORS_ALLOW_HEADERS,
         ),
         Middleware(ResponseLoggerMiddleware),
-        Middleware(
-            AuthenticationMiddleware,
-            backend=JWTAuthenticationBackend(),
-            on_error=on_auth_error,
-        ),
     ]
 
 

@@ -16,3 +16,8 @@ class AccountAlreadyExistsException(DuplicateValueException):
 
 class InvalidCredentialsException(UnauthorizedException):
     message = "Invalid credentials"
+
+
+class InvalidTokenException(UnauthorizedException):
+    message = "Invalid Token"
+

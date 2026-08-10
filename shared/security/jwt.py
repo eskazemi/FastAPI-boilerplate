@@ -1,51 +1,48 @@
-from datetime import datetime, timedelta
-from jose import ExpiredSignatureError, JWTError, jwt
+# src/shared/security/jwt.py
+from datetime import datetime, timedelta, timezone
+from typing import Any
+import jwt
+from pydantic import BaseModel, Field
 from shared.config import config
-from shared.exceptions import CustomException
 
 
-class JWTDecodeError(CustomException):
-    code = 401
-    message = "Invalid token"
+class TokenPayload(BaseModel):
+    sub: str  # شناسه اکانت (account_id)
+    exp: datetime
+    type: str  # "access" یا "refresh"
 
 
-class JWTExpiredError(CustomException):
-    code = 401
-    message = "Token expired"
+def create_token(subject: str, expires_delta: timedelta, token_type: str) -> str:
+    now = datetime.now(timezone.utc)
+    payload = TokenPayload(
+        sub=subject,
+        exp=now + expires_delta,
+        type=token_type
+    )
+    return jwt.encode(payload.model_dump(), config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
 
 
-class JWTHandler:
-    secret_key = config.SECRET_KEY
-    algorithm = config.JWT_ALGORITHM
-    expire_minutes = config.JWT_EXPIRE_MINUTES
+def create_access_token(subject: str) -> str:
+    return create_token(
+        subject=subject,
+        expires_delta=timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
+        token_type="access"
+    )
 
-    @staticmethod
-    def encode(payload: dict) -> str:
-        expire = datetime.utcnow() + timedelta(minutes=JWTHandler.expire_minutes)
-        payload.update({"exp": expire})
-        return jwt.encode(
-            payload, JWTHandler.secret_key, algorithm=JWTHandler.algorithm
-        )
 
-    @staticmethod
-    def decode(token: str) -> dict:
-        try:
-            return jwt.decode(
-                token, JWTHandler.secret_key, algorithms=[JWTHandler.algorithm]
-            )
-        except ExpiredSignatureError as exception:
-            raise JWTExpiredError() from exception
-        except JWTError as exception:
-            raise JWTDecodeError() from exception
+def create_refresh_token(subject: str) -> str:
+    return create_token(
+        subject=subject,
+        expires_delta=timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS),
+        token_type="refresh"
+    )
 
-    @staticmethod
-    def decode_expired(token: str) -> dict:
-        try:
-            return jwt.decode(
-                token,
-                JWTHandler.secret_key,
-                algorithms=[JWTHandler.algorithm],
-                options={"verify_exp": False},
-            )
-        except JWTError as exception:
-            raise JWTDecodeError() from exception
+
+def decode_token(token: str) -> dict[str, Any]:
+    try:
+        decoded = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALGORITHM])
+        return decoded
+    except jwt.ExpiredSignatureError:
+        raise ValueError("Token has expired")
+    except jwt.InvalidTokenError:
+        raise ValueError("Invalid token")
