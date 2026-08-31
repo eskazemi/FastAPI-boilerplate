@@ -118,7 +118,6 @@ async def register_account(
             password=payload.password,
             first_name=payload.first_name,
             last_name=payload.last_name,
-            mobile=payload.mobile,
         )
     )
 
@@ -126,7 +125,6 @@ async def register_account(
         email=result.email,
         first_name=result.first_name,
         last_name=result.last_name,
-        mobile=result.mobile,
         is_active=result.is_active,
     )
 
@@ -144,6 +142,6 @@ async def get_my_profile(
         email=result.email,
         first_name=result.first_name,
         last_name=result.last_name,
-        mobile=result.mobile,
         is_active=result.is_active,
     )
+

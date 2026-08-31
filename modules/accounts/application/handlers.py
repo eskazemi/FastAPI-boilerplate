@@ -11,6 +11,8 @@ from modules.accounts.domain.exceptions import (
     InvalidTokenException,
     AccountNotFoundException
 )
+from sqlalchemy.exc import IntegrityError
+
 from modules.accounts.domain.repositories import AccountRepository
 from shared.security.password import PasswordHasher
 from shared.application.uow import UnitOfWork
@@ -31,13 +33,13 @@ class RegisterAccountHandler:
         password_hasher: PasswordHasher,
         uow: UnitOfWork,
     ) -> None:
-        self.account_repo = account_repo
+        self.repositry = account_repo
         self.password_hasher = password_hasher
         self.uow = uow
-
     async def handle(self, command: RegisterAccountCommand) -> AccountResult:
-        existing_account = await self.account_repo.get_by_email(str(command.email))
+        email = str(command.email).lower().strip()
 
+        existing_account = await self.repositry.get_by_email(email)
         if existing_account is not None:
             raise AccountAlreadyExistsException()
 
@@ -48,18 +50,22 @@ class RegisterAccountHandler:
             hashed_password=hashed_password,
             first_name=command.first_name,
             last_name=command.last_name,
-            mobile=command.mobile,
         )
 
-        await self.account_repo.add(account)
-        await self.uow.commit()
+        try:
+            await self.repositry.add(account)
+            await self.uow.commit()
+        except IntegrityError as exc:
+            await self.uow.rollback()
+            raise AccountAlreadyExistsException() from exc
 
         return AccountResult(
             id=account.id,
             email=account.email,
+            first_name=account.first_name,
+            last_name=account.last_name,
             is_active=account.is_active,
         )
-
 
 class LoginHandler:
     def __init__(
@@ -131,6 +137,5 @@ class GetCurrentAccountHandler:
             email=account.email,
             first_name=account.first_name,
             last_name=account.last_name,
-            mobile=account.mobile,
             is_active=account.is_active,
         )

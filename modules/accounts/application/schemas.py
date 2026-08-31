@@ -1,13 +1,14 @@
 # src/modules/account/application/schemas.py
 from pydantic import EmailStr
-
+from uuid import UUID
 from shared.schemas import AppSchema
 
 
 class AccountResult(AppSchema):
-    id: str
     email: EmailStr
     is_active: bool
+    first_name: str
+    last_name: str
 
 
 class TokenResult(AppSchema):
@@ -16,4 +17,4 @@ class TokenResult(AppSchema):
 
 
 class GetCurrentAccountQuery(AppSchema):
-    account_id: str
+    account_id: UUID

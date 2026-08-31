@@ -38,17 +38,18 @@ class Config(BaseSettings):
     DEFAULT_LOCALE: str = "en_US"
     ENVIRONMENT: EnvironmentType = EnvironmentType.DEVELOPMENT
     
-    POSTGRES_URL: PostgresDsn = (
-        "postgresql+asyncpg://user:password@127.0.0.1:5432/db-name"
-    )
+    POSTGRES_URL: PostgresDsn
     REDIS_URL: RedisDsn = "redis://localhost:6379/7"
     
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
     
     SECRET_KEY: SecretStr
+    JWT_SECRET: SecretStr
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60 * 24
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     CELERY_BROKER_URL: str = "amqp://rabbit:password@localhost:5672"
     CELERY_BACKEND_URL: str = "redis://localhost:6379/0"
