@@ -1,21 +1,24 @@
 # src/modules/account/infrastructure/api/routes.py
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import (
+    APIRouter, 
+    Depends,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
-from modules.account.application.commands import (
+from modules.accounts.application.commands import (
     LoginCommand, 
     RefreshTokenCommand,
 )
 from shared.security.context import AuthenticatedUser
 from shared.security.dependencies import get_current_user
-from modules.account.application.commands import RegisterAccountCommand
-from modules.account.application.handlers import (
+from modules.accounts.application.commands import RegisterAccountCommand
+from modules.accounts.application.handlers import (
     RegisterAccountHandler,
     LoginHandler,
     RefreshTokenHandler,
     GetCurrentAccountHandler,
 )
-from modules.account.infrastructure.api.schemas import (
+from modules.accounts.infrastructure.api.schemas import (
     RegisterAccountRequest,
     AccountResponse,
     LoginRequest,
@@ -23,13 +26,13 @@ from modules.account.infrastructure.api.schemas import (
     RefreshTokenRequest,
     GetCurrentAccountQuery,
 )
-from modules.account.infrastructure.postgres.repositories import SqlAlchemyAccountRepository
-from shared.infrastructure.postgres import get_db_session
+from modules.accounts.infrastructure.persistence.repositories import SqlAlchemyAccountRepository
+from shared.infrastructure.database.postgres import get_db_session
 from shared.security.password import (
     ArgonPasswordHasher, 
     PasswordHasher,
 )
-from shared.infrastructure.uow import SqlAlchemyUnitOfWork
+from shared.infrastructure.database.uow import SqlAlchemyUnitOfWork
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 

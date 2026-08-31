@@ -1,5 +1,8 @@
 from uuid import uuid4
-from pydantic import EmailStr, Field
+from pydantic import (
+    EmailStr, 
+    Field,
+)
 from shared.schemas import AppSchema  
 from typing import Annotated
 from shared.types import PersianMobile

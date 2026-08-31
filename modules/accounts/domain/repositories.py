@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from modules.account.domain.entities import Account
+from modules.accounts.domain.entities import Account
 
 
 class AccountRepository(Protocol):

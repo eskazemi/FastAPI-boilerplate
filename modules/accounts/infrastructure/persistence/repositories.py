@@ -1,10 +1,9 @@
 # src/modules/account/infrastructure/postgres/repositories.py
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from modules.account.domain.entities import Account
-from modules.account.domain.repositories import AccountRepository
-from modules.account.infrastructure.postgres.models import AccountModel
+from modules.accounts.domain.entities import Account
+from modules.accounts.domain.repositories import AccountRepository
+from modules.accounts.infrastructure.persistence.models import AccountModel
 
 
 class SqlAlchemyAccountRepository(AccountRepository):

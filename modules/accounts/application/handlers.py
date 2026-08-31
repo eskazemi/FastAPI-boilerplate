@@ -1,20 +1,20 @@
-from modules.account.application.commands import RegisterAccountCommand
-from modules.account.application.schemas import (
+from modules.accounts.application.commands import RegisterAccountCommand
+from modules.accounts.application.schemas import (
     AccountResult,
     TokenResult,
     GetCurrentAccountQuery,
 )    
-from modules.account.domain.entities import Account
-from modules.account.domain.exceptions import (
+from modules.accounts.domain.entities import Account
+from modules.accounts.domain.exceptions import (
     AccountAlreadyExistsException,
     InvalidCredentialsException,
     InvalidTokenException,
     AccountNotFoundException
 )
-from modules.account.domain.repositories import AccountRepository
+from modules.accounts.domain.repositories import AccountRepository
 from shared.security.password import PasswordHasher
 from shared.application.uow import UnitOfWork
-from modules.account.application.commands import (
+from modules.accounts.application.commands import (
     LoginCommand, 
     RefreshTokenCommand,
 )

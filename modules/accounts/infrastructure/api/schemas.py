@@ -1,7 +1,5 @@
 from typing import Annotated
-
 from pydantic import EmailStr, Field
-
 from shared.schemas import AppSchema
 
 IranMobile = Annotated[
