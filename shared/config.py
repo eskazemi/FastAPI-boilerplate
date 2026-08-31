@@ -1,7 +1,23 @@
 from enum import Enum
+from pydantic import (
+    PostgresDsn, 
+    RedisDsn, 
+    SecretStr,
+    Field
+)
+from pydantic_settings import (
+    BaseSettings, 
+    SettingsConfigDict,
+)
 
-from pydantic import PostgresDsn, RedisDsn
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from shared.schemas import AppSchema
+from typing import Any
+
+class GatewaySettings(AppSchema):
+    enabled: bool = True
+    fail_max: int = 5
+    reset_timeout: int = 300
+    options: dict[str, Any] = Field(default_factory=dict)
 
 
 class EnvironmentType(str, Enum):
@@ -30,7 +46,7 @@ class Config(BaseSettings):
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
     
-    SECRET_KEY: str = "super-secret-key"
+    SECRET_KEY: SecretStr
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60 * 24
     
@@ -45,6 +61,24 @@ class Config(BaseSettings):
     APP_NAME: str = "Modular Monolith API"
     APP_VERSION: str = "0.1.0"
     APP_ENV: str = "development"
+    SECRET_KEY_KAVENEGAR: SecretStr
+
+    PAYMENT_GATEWAY_PRIORITY: list[str] = ["mellat", "zarinpal"]
+    PAYMENT_GATEWAYS: dict[str, GatewaySettings] = {
+        "mellat": GatewaySettings(
+            enabled=True,
+            fail_max=5,
+            reset_timeout=300,
+            options={}  
+        ),
+        "zarinpal": GatewaySettings(
+            enabled=True,
+            fail_max=5,
+            reset_timeout=300,
+            options={}
+        )
+    }
+
 
 
 config: Config = Config()
