@@ -1,48 +1,59 @@
-# src/shared/security/jwt.py
-from datetime import datetime, timedelta, timezone
+from datetime import (
+    datetime, 
+    timedelta, 
+    timezone,
+)
 from typing import Any
+from uuid import UUID
 import jwt
-from pydantic import BaseModel, Field
 from shared.config import config
+from shared.security.exceptions import (
+    InvalidTokenException, 
+    TokenExpiredException,
+)
 
 
-class TokenPayload(BaseModel):
-    sub: str  # شناسه اکانت (account_id)
-    exp: datetime
-    type: str  # "access" یا "refresh"
-
-
-def create_token(subject: str, expires_delta: timedelta, token_type: str) -> str:
+def create_token(subject: str | UUID, expires_delta: timedelta, token_type: str) -> str:
     now = datetime.now(timezone.utc)
-    payload = TokenPayload(
-        sub=subject,
-        exp=now + expires_delta,
-        type=token_type
+    expires_at = now + expires_delta
+
+    payload = {
+        "sub": str(subject),
+        "exp": int(expires_at.timestamp()),
+        "type": token_type,
+    }
+
+    return jwt.encode(
+        payload,
+        config.JWT_SECRET.get_secret_value(),
+        algorithm=config.JWT_ALGORITHM,
     )
-    return jwt.encode(payload.model_dump(), config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
 
 
-def create_access_token(subject: str) -> str:
+def create_access_token(subject: str | UUID) -> str:
     return create_token(
         subject=subject,
         expires_delta=timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES),
-        token_type="access"
+        token_type="access",
     )
 
 
-def create_refresh_token(subject: str) -> str:
+def create_refresh_token(subject: str | UUID) -> str:
     return create_token(
         subject=subject,
         expires_delta=timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS),
-        token_type="refresh"
+        token_type="refresh",
     )
 
 
 def decode_token(token: str) -> dict[str, Any]:
     try:
-        decoded = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALGORITHM])
-        return decoded
-    except jwt.ExpiredSignatureError:
-        raise ValueError("Token has expired")
-    except jwt.InvalidTokenError:
-        raise ValueError("Invalid token")
+        return jwt.decode(
+            token,
+            config.JWT_SECRET.get_secret_value(),
+            algorithms=[config.JWT_ALGORITHM],
+        )
+    except jwt.ExpiredSignatureError as exc:
+        raise TokenExpiredException() from exc
+    except jwt.InvalidTokenError as exc:
+        raise InvalidTokenException() from exc

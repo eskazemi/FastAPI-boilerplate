@@ -1,5 +1,3 @@
-# src/shared/security/dependencies.py
-
 from typing import Annotated
 from uuid import UUID
 from fastapi import Depends
@@ -7,13 +5,10 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from shared.exceptions.base import UnauthorizedException
+
 from shared.security.context import AuthenticatedUser
+from shared.security.exceptions import InvalidTokenException
 from shared.security.jwt import decode_token
-
-
-class InvalidTokenException(UnauthorizedException):
-    message = "Invalid Token"
 
 
 bearer_scheme = HTTPBearer(auto_error=False)
