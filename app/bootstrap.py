@@ -1,10 +1,13 @@
 from collections.abc import Sequence
-from fastapi import FastAPI, Request
+from fastapi import (
+    FastAPI, 
+    Request,
+)
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from shared.infrastructure.exception_handlers import register_exception_handlers
 from shared.infrastructure.http.routes.health import router as health_router
-from modules.account.infrastructure.api.routes import router as account_router
+from modules.accounts.infrastructure.api.routes import router as account_router
 from shared.cache.cache_manager import Cache
 from shared.cache.custom_key_maker import CustomKeyMaker
 from shared.cache.redis_backend import RedisBackend

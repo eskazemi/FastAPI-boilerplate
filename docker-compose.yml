@@ -1,4 +1,17 @@
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: migrate
+    env_file:
+      - .env
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - app-network
   app:
     build:
       context: .
@@ -6,33 +19,17 @@ services:
     container_name: app
     env_file:
       - .env
-    environment:
-      APP_ENV: ${APP_ENV:-development}
-      PYTHONUNBUFFERED: "1"
-
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password123}@postgresql:5432/${POSTGRES_DB:-fastapi-db}
-      TEST_DATABASE_URL: postgresql+asyncpg://${POSTGRES_TEST_USER:-postgres}:${POSTGRES_TEST_PASSWORD:-password123}@postgresql-test:5432/${POSTGRES_TEST_DB:-db-test}
-
-      REDIS_URL: redis://redis:6379/0
-
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER:-rabbit}
-      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-password}
-      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-rabbit}:${RABBITMQ_DEFAULT_PASS:-password}@rabbitmq:5672/
     ports:
       - "${APP_PORT:-8000}:8000"
-    volumes:
-      - .:/app
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgresql:
         condition: service_healthy
       redis:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     command: >
-      uv run uvicorn app.main:app
+      uvicorn app.main:app
       --host 0.0.0.0
       --port 8000
       --reload

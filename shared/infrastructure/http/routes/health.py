@@ -1,9 +1,12 @@
 # shared/infrastructure/http/routes/health.py
 
-from fastapi import APIRouter, status
+from fastapi import (
+    APIRouter, 
+    status,
+)
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
-from shared.infrastructure.postgres import engine
+from shared.infrastructure.database.postgres import engine
 
 router = APIRouter(
     prefix="/health",

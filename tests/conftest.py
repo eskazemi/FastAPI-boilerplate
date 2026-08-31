@@ -2,13 +2,20 @@
 
 import asyncio
 import os
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import (
+    AsyncIterator, 
+    Iterator,
+)
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker, 
+    create_async_engine,
+)
 
-from shared.infrastructure.postgres_base import Base
+from shared.infrastructure.database.postgres_base import Base
 
 
 TEST_DATABASE_URL = os.getenv(

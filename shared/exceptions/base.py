@@ -1,4 +1,4 @@
-# src/shared/exceptions.py
+#/shared/exeptions/base.py
 from http import HTTPStatus
 
 
@@ -12,11 +12,15 @@ class CustomException(Exception):
             self.message = message
         super().__init__(self.message)
 
-
 class BadRequestException(CustomException):
     code = HTTPStatus.BAD_REQUEST
     error_code = HTTPStatus.BAD_REQUEST
     message = HTTPStatus.BAD_REQUEST.description
+
+class ConflictException(CustomException):
+    code = HTTPStatus.CONFLICT
+    error_code = HTTPStatus.CONFLICT
+    message = HTTPStatus.CONFLICT.description
 
 
 class NotFoundException(CustomException):
@@ -47,3 +51,20 @@ class DuplicateValueException(CustomException):
     code = HTTPStatus.UNPROCESSABLE_ENTITY
     error_code = HTTPStatus.UNPROCESSABLE_ENTITY
     message = HTTPStatus.UNPROCESSABLE_ENTITY.description
+
+
+class TooManyRequestsException(CustomException):
+    code = HTTPStatus.TOO_MANY_REQUESTS
+    error_code = "too_many_requests"
+    message = "Rate limit exceeded. Please try again later."
+
+
+class ServiceUnavailableException(CustomException):
+    code = HTTPStatus.SERVICE_UNAVAILABLE
+    error_code = "service_unavailable"
+    message = "Service is temporarily unavailable."
+
+class PaymentRequirement(CustomException):
+    code = HTTPStatus.PAYMENT_REQUIRED,
+    error_code = "Quota exceeded"
+    message = "Quota exceeded. Please buy a package."

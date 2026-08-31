@@ -7,7 +7,8 @@ dependencies = [
     "argon2-cffi>=25.1.0",
     "asyncpg>=0.31.0",
     "fastapi[standard]>=0.141.1",
-    "jwt>=1.4.0",
+    "pyjwt>=2.13.0",
+    "kavenegar>=1.1.2",
     "passlib>=1.7.4",
     "pre-commit>=4.6.1",
     "pytest-asyncio>=1.4.0",
@@ -16,6 +17,7 @@ dependencies = [
     "sqlalchemy==2.0.51",
     "ujson>=5.13.0",
     "vulture>=2.16",
+    "psycopg2-binary>=2.9.12",
 ]
 environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'"
