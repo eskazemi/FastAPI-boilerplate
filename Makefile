@@ -1,7 +1,9 @@
-.PHONY: help setup start stop restart status logs logs-app health shell format lint type-check test test-cov pre-commit clean prune
+.PHONY: help setup start stop restart status logs logs-app health shell format lint type-check test test-cov pre-commit clean prune migrate-gen migrate-up migrate-down db-status
 
+# Variables
 PYTHON_DIRS := app modules shared worker tests
 TYPE_DIRS := app modules shared worker
+ALEMBIC := uv run alembic
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -37,6 +39,7 @@ health: ## Check application and Docker service health
 shell: ## Open shell inside app container
 	docker compose exec app sh
 
+# --- Code Quality ---
 format: ## Format Python code with Ruff
 	uv run ruff format $(PYTHON_DIRS)
 
@@ -55,6 +58,20 @@ test-cov: ## Run tests with coverage report
 pre-commit: ## Run all pre-commit hooks on all files
 	uv run pre-commit run --all-files
 
+# --- Database & Migrations ---
+migrate-gen: ## Generate a new migration file (usage: make migrate-gen m="description")
+	$(ALEMBIC) revision --autogenerate -m "$(m)"
+
+migrate-up: ## Upgrade database to the latest version
+	$(ALEMBIC) upgrade head
+
+migrate-down: ## Rollback database one version
+	$(ALEMBIC) downgrade -1
+
+db-status: ## Show current migration status of the database
+	$(ALEMBIC) current
+
+# --- Cleanup ---
 clean: ## Stop services and remove project volumes
 	docker compose down -v
 
