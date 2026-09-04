@@ -43,6 +43,11 @@ class Config(BaseSettings):
     
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
+
+    LOG_LEVEL: str = "INFO"
+    LOG_JSON: bool = True
+    LOG_INCLUDE_DEBUG: bool = False
+    TRUST_FORWARDED_HEADERS: bool = False
     
     SECRET_KEY: SecretStr
     JWT_SECRET: SecretStr
@@ -63,6 +68,7 @@ class Config(BaseSettings):
     APP_VERSION: str = "0.1.0"
     APP_ENV: str = "development"
     SECRET_KEY_KAVENEGAR: SecretStr
+    
 
     PAYMENT_GATEWAY_PRIORITY: list[str] = ["mellat", "zarinpal"]
     PAYMENT_GATEWAYS: dict[str, GatewaySettings] = {

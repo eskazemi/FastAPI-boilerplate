@@ -33,6 +33,8 @@ from shared.security.password import (
     PasswordHasher,
 )
 from shared.infrastructure.database.uow import SqlAlchemyUnitOfWork
+from shared.infrastructure.api.dependencies import get_request_logger
+
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
@@ -44,6 +46,7 @@ def get_password_hasher() -> PasswordHasher:
 async def get_register_account_handler(
     session: Annotated[AsyncSession, Depends(get_db_session)],
     password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
+    # logger: Annotated[Depends(get_request_logger)]
 ) -> RegisterAccountHandler:
     account_repo = SqlAlchemyAccountRepository(session)
     uow = SqlAlchemyUnitOfWork(session)

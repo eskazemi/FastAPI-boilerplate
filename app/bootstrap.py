@@ -11,16 +11,22 @@ from modules.accounts.infrastructure.api.routes import router as account_router
 from shared.cache.cache_manager import Cache
 from shared.cache.custom_key_maker import CustomKeyMaker
 from shared.cache.redis_backend import RedisBackend
-
+from shared.logging import (
+    configure_logging, 
+    get_logger,
+)
+from shared.middlewares.request_logging import RequestLoggingMiddleware
 from fastapi.responses import JSONResponse
-
 from shared.config import (
     config,
     EnvironmentType,
 )
-from shared.middlewares.response_logger import (
-    ResponseLoggerMiddleware,
-)
+from contextlib import asynccontextmanager
+
+
+configure_logging()
+logger = get_logger(__name__)
+
 
 def register_cache() -> None:
     Cache.init(
@@ -39,6 +45,7 @@ def on_auth_error(request: Request, exc: Exception) -> JSONResponse:
 
 def make_middleware() -> Sequence[Middleware]:
     return [
+        Middleware(RequestLoggingMiddleware),
         Middleware(
             CORSMiddleware,
             allow_origins=config.CORS_ALLOW_ORIGINS,
@@ -46,8 +53,47 @@ def make_middleware() -> Sequence[Middleware]:
             allow_methods=config.CORS_ALLOW_METHODS,
             allow_headers=config.CORS_ALLOW_HEADERS,
         ),
-        Middleware(ResponseLoggerMiddleware),
+
     ]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> None:
+    """
+    Lifecycle مدیریت چرخه عمر اپلیکیشن با پشتیبانی کامل از FastAPI.
+
+    این context manager یکپارچه با ASGI server (uvicorn/gunicorn) کار می‌کند.
+    بخش startup قبل از `yield` اجرا می‌شود و بخش shutdown در هنگام بستن اپلیکیشن (KeyboardInterrupt، graceful shutdown، یا restart) فراخوانی می‌شود.
+    """
+
+    # لاگ شروع اپلیکیشن (قبل از ثبت cache و منابع دیگر)
+    logger.info(
+        "application_starting",
+        version=config.APP_VERSION,
+        environment=config.ENVIRONMENT,
+    )
+
+    # Startup: ثبت منابع و اتصالات اولیه
+    register_cache()
+
+    # TODO: اینجا منابع دیگر را مقداردهی کنید
+    # - database (SQLAlchemy session, asyncpg, etc.)
+    # - redis (اگر Cache.init کافی نبود، اتصال مستقیم)
+    # - rabbitmq (pika یا aio_pika connection)
+    # - mongo (pymongo AsyncClient یا motor)
+    # - clients خارجی (HTTP, gRPC, WebSocket, etc.)
+
+    try:
+        yield
+    finally:
+        # Shutdown: بستن امن منابع (همگام و ایمن)
+        # - بستن connection poolهای دیتابیس
+        # - بستن اتصال redis
+        # - بستن message broker (rabbitmq)
+        # - بستن mongo clients
+        # - بستن هر client دیگر
+
+        logger.info("application_stopped")
 
 
 def create_app() -> FastAPI:
@@ -59,6 +105,7 @@ def create_app() -> FastAPI:
         redoc_url=None if config.ENVIRONMENT == EnvironmentType.PRODUCTION else "/redoc",
         openapi_url=None if config.ENVIRONMENT == EnvironmentType.PRODUCTION else "/openapi.json",
         middleware=make_middleware(),
+        lifespan=lifespan,
     )
     register_routers(app)
     register_cache()
