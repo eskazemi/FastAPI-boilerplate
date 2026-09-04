@@ -77,3 +77,7 @@ clean: ## Stop services and remove project volumes
 
 prune: ## Remove unused Docker resources
 	docker system prune -f
+
+### snakeviz
+snakeviz:
+	uv run snakeviz profiles/${m}

@@ -1,34 +1,44 @@
-from kavenegar import KavenegarAPI, APIException
-from services.sms.interface import SmsClientInterface
 import logging
+
+from kavenegar import (
+    APIException,
+    HTTPException,
+    KavenegarAPI,
+)
+from services.sms.interface import SmsClientInterface
+
+
+logger = logging.getLogger(__name__)
 
 
 class KavenegarClient(SmsClientInterface):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str) -> None:
         self.api = KavenegarAPI(api_key)
 
-    def send_message(self, receiver: str, message: str):
-        """
-        Send an SMS message using the Kavenegar API.
+    def send_message(
+        self,
+        receiver: str,
+        message: str,
+    ) -> str:
+        """Send an SMS message using the Kavenegar API."""
 
-        Args:
-            receiver (str): The phone number of the message recipient.
-            message (str): The content of the SMS message.
+        params = {
+            "receptor": receiver,
+            "message": message,
+        }
 
-        Returns:
-            str: The message ID of the sent message.
-
-        Raises:
-            APIException: An error occurred with the Kavenegar API.
-            HTTPException: An HTTP error occurred while sending the message.
-        """
         try:
-            params = {'receptor': receiver, 'message': message}
             response = self.api.sms_send(params)
-            return response.messageid
-        except APIException as e:
-            logging.error(e)
+            return str(response.messageid)
+
+        except APIException:
+            logger.exception(
+                "Kavenegar API error while sending SMS"
+            )
             raise
-        except HTTPException as e:
-            logging.error(e)
+
+        except HTTPException:
+            logger.exception(
+                "Kavenegar HTTP error while sending SMS"
+            )
             raise

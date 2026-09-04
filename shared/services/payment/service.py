@@ -10,7 +10,7 @@ from .exceptions import (
     PaymentGatewayUnavailableError,
     PaymentRequestFailedError,
 )
-from .factory import GatewayFactory
+from .factory import gateway_factory
 from .schemas import (
     PaymentRequest, 
     PaymentResponse, 
@@ -111,7 +111,7 @@ class PaymentService:
             # TODO: create db record in a transaction
             # await self._create_db_payment_record(request, idempotency_key)
 
-            gateway = await GatewayFactory.get_healthy_gateway()
+            gateway = gateway_factory.get_healthy_gateway()
             try:
                 response = await gateway.request_payment(request)
             except Exception as exc:

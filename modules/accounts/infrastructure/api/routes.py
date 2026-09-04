@@ -24,8 +24,8 @@ from modules.accounts.infrastructure.api.schemas import (
     LoginRequest,
     TokenResponse,
     RefreshTokenRequest,
-    GetCurrentAccountQuery,
 )
+from modules.accounts.application.schemas import GetCurrentAccountQuery
 from modules.accounts.infrastructure.persistence.repositories import SqlAlchemyAccountRepository
 from shared.infrastructure.database.postgres import get_db_session
 from shared.security.password import (

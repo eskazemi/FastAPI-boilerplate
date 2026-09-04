@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from modules.accounts.domain.entities import Account
 from modules.accounts.domain.repositories import AccountRepository
 from modules.accounts.infrastructure.persistence.models import AccountModel
-
+from uuid import UUID
 
 class SqlAlchemyAccountRepository(AccountRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_id(self, account_id: str) -> Account | None:
+    async def get_by_id(self, account_id: UUID) -> Account | None:
         stmt = select(AccountModel).where(AccountModel.id == account_id)
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()

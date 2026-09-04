@@ -60,7 +60,6 @@ class RegisterAccountHandler:
             raise AccountAlreadyExistsException() from exc
 
         return AccountResult(
-            id=account.id,
             email=account.email,
             first_name=account.first_name,
             last_name=account.last_name,

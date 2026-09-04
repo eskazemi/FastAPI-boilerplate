@@ -65,6 +65,6 @@ class ServiceUnavailableException(CustomException):
     message = "Service is temporarily unavailable."
 
 class PaymentRequirement(CustomException):
-    code = HTTPStatus.PAYMENT_REQUIRED,
+    code = HTTPStatus.PAYMENT_REQUIRED
     error_code = "Quota exceeded"
     message = "Quota exceeded. Please buy a package."

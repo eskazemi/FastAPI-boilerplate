@@ -20,6 +20,9 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "structlog>=26.1.0",
     "rich>=15.0.0",
+    "pyright>=1.1.411",
+    "pybreaker>=1.4.1",
+    "snakeviz>=2.2.2",
 ]
 environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'"
@@ -66,3 +69,12 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
 skip-magic-trailing-comma = false
+
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.14"
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false

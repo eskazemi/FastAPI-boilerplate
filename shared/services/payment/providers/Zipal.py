@@ -9,6 +9,7 @@ from shared.services.payment.schemas import (
     PaymentVerificationResult, 
     PaymentStatus,
 )
+from pydantic import HttpUrl
 
 
 class ZarinPalGateway:
@@ -46,9 +47,10 @@ class ZarinPalGateway:
             raise GatewayUnavailableError("zarinpal unavailable") from exc
 
         data = response.json()
+        authority = str(data["authority"])
 
         return PaymentResponse(
-            payment_url=f"https://payment.zarinpal.com/pg/StartPay/{data['authority']}",
+            payment_url=HttpUrl(f"https://payment.zarinpal.com/pg/StartPay/{authority}"),      
             authority=data["authority"],
             gateway_name=self.name,
         )

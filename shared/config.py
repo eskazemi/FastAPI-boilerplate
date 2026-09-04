@@ -38,9 +38,8 @@ class Config(BaseSettings):
     DEFAULT_LOCALE: str = "en_US"
     ENVIRONMENT: EnvironmentType = EnvironmentType.DEVELOPMENT
     
-    POSTGRES_URL: PostgresDsn
-    REDIS_URL: RedisDsn = "redis://localhost:6379/7"
-    
+    POSTGRES_URL: PostgresDsn = Field(...)
+    REDIS_URL: RedisDsn = Field(...)
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
 
@@ -49,8 +48,8 @@ class Config(BaseSettings):
     LOG_INCLUDE_DEBUG: bool = False
     TRUST_FORWARDED_HEADERS: bool = False
     
-    SECRET_KEY: SecretStr
-    JWT_SECRET: SecretStr
+    SECRET_KEY: SecretStr = Field(...)
+    JWT_SECRET: SecretStr = Field(...)
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60 * 24
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
@@ -88,4 +87,4 @@ class Config(BaseSettings):
 
 
 
-config: Config = Config()
+config = Config()  # pyright: ignore[reportCallIssue]

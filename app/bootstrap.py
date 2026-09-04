@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import AsyncIterator, Sequence
 from fastapi import (
     FastAPI, 
     Request,
@@ -58,7 +58,7 @@ def make_middleware() -> Sequence[Middleware]:
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> None:
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     Lifecycle مدیریت چرخه عمر اپلیکیشن با پشتیبانی کامل از FastAPI.
 
@@ -108,7 +108,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     register_routers(app)
-    register_cache()
     register_exception_handlers(app)
 
 

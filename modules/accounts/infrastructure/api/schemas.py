@@ -32,7 +32,3 @@ class TokenResponse(AppSchema):
 
 class RefreshTokenRequest(AppSchema):
     refresh_token: str
-
-
-class GetCurrentAccountQuery(AppSchema):
-    account_id: UUID
