@@ -4,7 +4,6 @@ from fastapi import (
     APIRouter, 
     Depends,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 from modules.accounts.application.commands import (
     LoginCommand, 
     RefreshTokenCommand,
@@ -26,60 +25,27 @@ from modules.accounts.infrastructure.api.schemas import (
     RefreshTokenRequest,
 )
 from modules.accounts.application.schemas import GetCurrentAccountQuery
-from modules.accounts.infrastructure.persistence.repositories import SqlAlchemyAccountRepository
-from shared.infrastructure.database.postgres import get_db_session
-from shared.security.password import (
-    ArgonPasswordHasher, 
-    PasswordHasher,
+from shared.infrastructure.api.dependencies import (
+    RateLimiter, 
+    Limiter, 
+    Rate, 
+    Duration,
 )
-from shared.infrastructure.database.uow import SqlAlchemyUnitOfWork
-from shared.infrastructure.api.dependencies import get_request_logger
+from modules.accounts.infrastructure.api.dependencies import (
+    get_login_handler,
+    get_current_account_handler,
+    get_refresh_token_handler,
+    get_register_account_handler
+)
 
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
 
-def get_password_hasher() -> PasswordHasher:
-    return ArgonPasswordHasher()
-
-
-async def get_register_account_handler(
-    session: Annotated[AsyncSession, Depends(get_db_session)],
-    password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
-    # logger: Annotated[Depends(get_request_logger)]
-) -> RegisterAccountHandler:
-    account_repo = SqlAlchemyAccountRepository(session)
-    uow = SqlAlchemyUnitOfWork(session)
-
-    return RegisterAccountHandler(
-        account_repo=account_repo,
-        password_hasher=password_hasher,
-        uow=uow,
-    )
-
-async def get_current_account_handler(
-    session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> GetCurrentAccountHandler:
-    account_repo = SqlAlchemyAccountRepository(session)
-    return GetCurrentAccountHandler(account_repo=account_repo)
-
-async def get_login_handler(
-    session: Annotated[AsyncSession, Depends(get_db_session)],
-    password_hasher: Annotated[PasswordHasher, Depends(get_password_hasher)],
-) -> LoginHandler:
-    account_repo = SqlAlchemyAccountRepository(session)
-    return LoginHandler(account_repo=account_repo, password_hasher=password_hasher)
-
-
-async def get_refresh_token_handler(
-    session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> RefreshTokenHandler:
-    account_repo = SqlAlchemyAccountRepository(session)
-    return RefreshTokenHandler(account_repo=account_repo)
-
-
 # Endpointهای Authentication
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", 
+            response_model=TokenResponse, 
+            dependencies=[Depends(RateLimiter(limiter=Limiter(Rate(2, Duration.SECOND * 5))))])
 async def login(
     payload: LoginRequest,
     handler: Annotated[LoginHandler, Depends(get_login_handler)],
@@ -100,6 +66,7 @@ async def login(
 async def refresh_token(
     payload: RefreshTokenRequest,
     handler: Annotated[RefreshTokenHandler, Depends(get_refresh_token_handler)],
+    dependencies=[Depends(RateLimiter(limiter=Limiter(Rate(2, Duration.SECOND * 5))))]
 ) -> TokenResponse:
     result = await handler.handle(
         RefreshTokenCommand(refresh_token=payload.refresh_token)
@@ -110,7 +77,10 @@ async def refresh_token(
         refresh_token=result.refresh_token,
     )
 
-@router.post("", response_model=AccountResponse, status_code=201)
+@router.post("", 
+            response_model=AccountResponse, 
+            status_code=201,
+            dependencies=[Depends(RateLimiter(limiter=Limiter(Rate(2, Duration.SECOND * 5))))])
 async def register_account(
     payload: RegisterAccountRequest,
     handler: Annotated[RegisterAccountHandler, Depends(get_register_account_handler)],
@@ -132,7 +102,10 @@ async def register_account(
     )
 
 
-@router.get("/me", response_model=AccountResponse)
+@router.get("/me", 
+            response_model=AccountResponse,
+            dependencies=[Depends(RateLimiter(limiter=Limiter(Rate(2, Duration.SECOND * 5))))]
+            )
 async def get_my_profile(
     current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
     handler: Annotated[GetCurrentAccountHandler, Depends(get_current_account_handler)],
