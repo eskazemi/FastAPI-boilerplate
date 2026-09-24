@@ -1,15 +1,18 @@
-from abc import (
-    ABC, 
-    abstractmethod,
-)
+# shared/services/sms/interface.py
+
+from collections.abc import Mapping
+from typing import Protocol
 
 
-class SmsClientInterface(ABC):
-    @abstractmethod
-    def send_message(
+class SmsClientInterface(Protocol):
+    async def send_message(
         self,
         receiver: str,
-        message: str,
+        message: str | None = None,
+        *,
+        pattern: bool = False,
+        attributes: Mapping[str, str] | None = None,
+        pattern_code: str | None = None,
     ) -> str:
-        """Send an SMS message and return its message ID."""
-        raise NotImplementedError
+        """Send an SMS and return its message ID."""
+        ...

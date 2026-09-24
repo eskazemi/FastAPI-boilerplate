@@ -43,6 +43,10 @@ class Config(BaseSettings):
     RELEASE_VERSION: str = "0.1"
     SHOW_SQL_ALCHEMY_QUERIES: int = 0
 
+    #sms
+    IRAN_PAYAMK_API_KEY: SecretStr = Field(...)
+    LINE_NUMBER: str = "90008361"
+
     LOG_LEVEL: str = "INFO"
     LOG_JSON: bool = True
     LOG_INCLUDE_DEBUG: bool = False
