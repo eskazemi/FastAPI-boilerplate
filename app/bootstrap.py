@@ -16,12 +16,18 @@ from shared.logging import (
     get_logger,
 )
 from shared.middlewares.request_logging import RequestLoggingMiddleware
+from shared.middlewares.rate_limit import (
+    RateLimitMiddleware, 
+    global_limiter_store,
+)
 from fastapi.responses import JSONResponse
 from shared.config import (
     config,
     EnvironmentType,
 )
 from contextlib import asynccontextmanager
+
+
 
 
 configure_logging()
@@ -53,7 +59,7 @@ def make_middleware() -> Sequence[Middleware]:
             allow_methods=config.CORS_ALLOW_METHODS,
             allow_headers=config.CORS_ALLOW_HEADERS,
         ),
-
+        # Middleware(RateLimitMiddleware, limiter_store=global_limiter_store)
     ]
 
 
