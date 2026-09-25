@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app
+    container_name: Fastapi-boilerplate
     env_file:
       - .env
     ports:
@@ -120,11 +120,27 @@ services:
     networks:
       - app-network
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    expose:
+      - "9090"
+    volumes:
+      - ./config/prometheus:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - app-network
+
 volumes:
   postgresql_data:
   postgresql_test_data:
   redis_data:
   rabbitmq_data:
+  prometheus_data:
 
 networks:
   app-network:

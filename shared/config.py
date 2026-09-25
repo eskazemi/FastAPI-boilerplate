@@ -67,7 +67,7 @@ class Config(BaseSettings):
     CORS_ALLOW_METHODS: list[str] = ["*"]
     CORS_ALLOW_HEADERS: list[str] = ["*"]
 
-    APP_NAME: str = "Modular Monolith API"
+    APP_NAME: str = "Fastapi-boilerplate"
     APP_VERSION: str = "0.1.0"
     APP_ENV: str = "development"
     SECRET_KEY_KAVENEGAR: SecretStr

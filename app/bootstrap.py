@@ -16,6 +16,7 @@ from shared.logging import (
     get_logger,
 )
 from shared.middlewares.request_logging import RequestLoggingMiddleware
+from shared.middlewares.metrics import MetricsMiddleware
 from shared.middlewares.rate_limit import (
     RateLimitMiddleware, 
     global_limiter_store,
@@ -60,6 +61,7 @@ def make_middleware() -> Sequence[Middleware]:
             allow_headers=config.CORS_ALLOW_HEADERS,
         ),
         # Middleware(RateLimitMiddleware, limiter_store=global_limiter_store)
+        Middleware(MetricsMiddleware)
     ]
 
 
